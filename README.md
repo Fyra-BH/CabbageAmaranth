@@ -25,7 +25,7 @@
 ## 数据集结构
 
 ```
-dataset/
+CabbageAmaranth/
 ├── images/
 │   ├── 0_0_000001.jpg
 │   ├── ...
