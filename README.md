@@ -19,6 +19,41 @@
   ```
   python crop_images.py --input_dir /path/to/image_dir --output_dir output_dir
   ```
+
+  crop_images.py一种实现：
+
+  ```python
+  import argparse
+  import os
+  from PIL import Image
+
+  def crop_image(image_path, output_path, width=1920, height=1080):
+      image = Image.open(image_path)
+      img_width, img_height = image.size
+
+      for i in range(img_width // width):
+          for j in range(img_height // height):
+              box = (i * width, j * height, (i + 1) * width, (j + 1) * height)
+              cropped_img = image.crop(box)
+              cropped_img.save(os.path.join(output_path, f'cropped_{i}_{j}_{os.path.basename(image_path)}'))
+
+  def main():
+      parser = argparse.ArgumentParser(description='Crop images to 1080p.')
+      parser.add_argument('--input_dir', type=str, required=True, help='Directory of images to be cropped.')
+      parser.add_argument('--output_dir', type=str, required=True, help='Directory to save cropped images.')
+      args = parser.parse_args()
+
+      if not os.path.exists(args.output_dir):
+          os.makedirs(args.output_dir)
+
+      for filename in os.listdir(args.input_dir):
+          if filename.endswith(('.jpg', '.png', '.jpeg')):
+              crop_image(os.path.join(args.input_dir, filename), args.output_dir)
+
+  if __name__ == '__main__':
+      main()
+
+  ```
 - **标注工具**: 使用[Labelme](https://github.com/wkentaro/labelme)软件进行标注。
 - **数据集格式**: 标注后的数据已转换为YOLO数据集格式，并使用CloDSA进行图像增强。
 
@@ -26,14 +61,24 @@
 
 ```
 CabbageAmaranth/
-├── images/
-│   ├── 0_0_000001.jpg
-│   ├── ...
-│   ├── 89_3_000090.jpg
-└── labels/
-    ├── 0_0_000001.txt
-    ├── ...
-    └── 89_3_000090.txt
+├── images
+│   ├── train
+│   │   ├── 0_0_00000.jpg
+│   │   ├── ...
+│   │   └── 567_0_00567.jpg
+│   └── val
+│       ├── 5_0_00005.jpg
+│   │   ├── ...
+│       └── 647_3_00647.jpg
+└── labels
+    ├── train
+    │   ├── 0_0_00000.txt
+    │   ├── ...
+    │   └── 567_0_00567.txt
+    └── val
+        ├── 5_0_00005.txt
+        ├── ...
+        └── 647_3_00647.txt
 ```
 
 ## 使用方法
@@ -48,8 +93,8 @@ CabbageAmaranth/
 
 ```yaml
 path: ../datasets/CabbageAmaranth # dataset root dir
-train: images # train images 
-val: images # val images
+train: images/train # train images
+val: images/val # val images
 test: # test images (optional)
 
 # Classes
